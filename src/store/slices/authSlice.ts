@@ -5,7 +5,7 @@ interface User {
   _id: string
   name: string
   email: string
-  role: 'admin' | 'driver' | 'customer'
+  role: 'admin' | 'driver' | 'user'
 }
 
 interface AuthState {
@@ -13,26 +13,54 @@ interface AuthState {
   token: string | null
   loading: boolean
   error: string | null
+  initialized: boolean 
 }
 
-interface LoginCredentials {
-  email: string
-  password: string
-}
-
-interface RegisterData {
-  name: string
-  email: string
-  password: string
-  role?: string
+// Helper to get user from localStorage
+const getInitialUser = (): User | null => {
+  const userStr = localStorage.getItem('user')
+  console.log(JSON.parse(userStr))
+  if (userStr) {
+    try {
+      return JSON.parse(userStr)
+      
+    } catch {
+      return null
+    }
+  }
+  return null
 }
 
 const initialState: AuthState = {
-  user: null,
+  user: getInitialUser(),
   token: localStorage.getItem('accessToken'),
   loading: false,
   error: null,
+  initialized: false, 
 }
+
+// Add this thunk to initialize auth state
+export const initializeAuth = createAsyncThunk(
+  'auth/initialize',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('accessToken')
+      const userStr = localStorage.getItem('user')
+      
+      if (token && userStr) {
+        const user = JSON.parse(userStr)
+        
+        return { token, user }
+      }
+      return { token: null, user: null }
+    } catch (error: any) {
+      // If token is invalid, clear localStorage
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('user')
+      return rejectWithValue('Session expired')
+    }
+  }
+)
 
 // Login
 export const loginUser = createAsyncThunk(
@@ -73,11 +101,13 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null
       state.token = null
+      state.initialized = true
       localStorage.removeItem('accessToken')
       localStorage.removeItem('user')
     },
     setUser: (state, action: { payload: any }) => {
       state.user = action.payload
+      state.initialized = true
     },
     clearError: (state) => {
       state.error = null
@@ -85,6 +115,22 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Initialize auth
+      .addCase(initializeAuth.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(initializeAuth.fulfilled, (state, action) => {
+        state.loading = false
+        state.token = action.payload.token
+        state.user = action.payload.user
+        state.initialized = true
+      })
+      .addCase(initializeAuth.rejected, (state) => {
+        state.loading = false
+        state.token = null
+        state.user = null
+        state.initialized = true
+      })
       // Login
       .addCase(loginUser.pending, (state) => {
         state.loading = true
@@ -94,11 +140,13 @@ const authSlice = createSlice({
         state.loading = false
         state.token = action.payload.token
         state.user = action.payload.user
+        state.initialized = true
         state.error = null
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string
+        state.initialized = true
       })
       // Register
       .addCase(registerUser.pending, (state) => {
@@ -109,15 +157,16 @@ const authSlice = createSlice({
         state.loading = false
         state.token = action.payload.token
         state.user = action.payload.user
+        state.initialized = true
         state.error = null
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string
+        state.initialized = true
       })
   },
 })
 
 export const { logout, setUser, clearError } = authSlice.actions
 export default authSlice.reducer
-

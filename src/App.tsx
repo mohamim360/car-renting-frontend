@@ -1,8 +1,11 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import CommonLayout from './layouts/CommonLayout'
 import DashboardLayout from './layouts/DashboardLayout'
 import ProtectedRoute from './components/routes/ProtectedRoute'
 import PublicRoute from './components/routes/PublicRoute'
+import { useDispatch } from 'react-redux'
+import { initializeAuth } from './store/slices/authSlice'
 
 // Public Pages
 import Home from './pages/Home'
@@ -21,6 +24,12 @@ import UsersManagement from './pages/dashboard/UsersManagement'
 import DriverDashboard from './pages/dashboard/DriverDashboard'
 
 function App() {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(initializeAuth())
+  }, [dispatch])
+
   return (
     <Routes>
       {/* Public Routes with Common Layout */}
