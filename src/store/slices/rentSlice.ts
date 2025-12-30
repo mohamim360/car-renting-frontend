@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { api } from '../../lib/api'
+import type { RootState } from '../store'
 
 interface Rent {
   _id: string
@@ -24,12 +25,45 @@ const initialState: RentState = {
   error: null,
 }
 
-// Get all rents
+// Create rent - updated to include user from state
+export const createRent = createAsyncThunk(
+  'rent/create',
+  async (rentData: Partial<Rent>, { rejectWithValue, getState }) => {
+    try {
+      const state = getState() as RootState
+      const userId = state.auth.user?._id
+      
+      if (!userId) {
+        return rejectWithValue('User not authenticated')
+      }
+
+      const rentDataWithUser = {
+        ...rentData,
+        user: userId, 
+      }
+
+      const response = await api.post('/rents', rentDataWithUser)
+      return response.data.data
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create rent')
+    }
+  }
+)
+
+// Get all rents for current user
 export const getAllRents = createAsyncThunk(
   'rent/getAll',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const response = await api.get('/rents')
+      const state = getState() as RootState
+      const userId = state.auth.user?._id
+      
+      if (!userId) {
+        return rejectWithValue('User not authenticated')
+      }
+
+      // Get rents for current user
+      const response = await api.get(`/rents/user/${userId}`)
       return response.data.data
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch rents')
@@ -46,19 +80,6 @@ export const getRentById = createAsyncThunk(
       return response.data.data
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch rent')
-    }
-  }
-)
-
-// Create rent
-export const createRent = createAsyncThunk(
-  'rent/create',
-  async (rentData: Partial<Rent>, { rejectWithValue }) => {
-    try {
-      const response = await api.post('/rents', rentData)
-      return response.data.data
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create rent')
     }
   }
 )
@@ -154,4 +175,3 @@ const rentSlice = createSlice({
 
 export const { clearError, setCurrentRent } = rentSlice.actions
 export default rentSlice.reducer
-

@@ -29,7 +29,7 @@ export default function PublicRoute({ children, restricted = false }: PublicRout
         return <Navigate to="/dashboard/admin" replace />
       case 'driver':
         return <Navigate to="/dashboard/driver" replace />
-      case 'customer':
+      case 'user':
         return <Navigate to="/dashboard" replace />
       default:
         return <Navigate to="/" replace />

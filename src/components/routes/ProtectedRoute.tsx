@@ -1,14 +1,15 @@
-import { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAppSelector } from '../../store/hooks'
 
 interface ProtectedRouteProps {
-  children: ReactNode
+  children: React.ReactNode
   allowedRoles?: string[]
 }
 
 export default function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { token, user, initialized, loading } = useAppSelector((state) => state.auth)
+  // console.log({ token, user, initialized })
+
   const location = useLocation()
 
   // Show loading spinner while checking authentication
