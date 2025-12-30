@@ -22,6 +22,7 @@ import AdminDashboard from './pages/dashboard/AdminDashboard'
 import CarsManagement from './pages/dashboard/CarsManagement'
 import UsersManagement from './pages/dashboard/UsersManagement'
 import DriverDashboard from './pages/dashboard/DriverDashboard'
+import MyCars from './pages/dashboard/MyCars'
 
 function App() {
   const dispatch = useDispatch()
@@ -97,6 +98,16 @@ function App() {
           <ProtectedRoute allowedRoles={['user']}>
             <DashboardLayout>
               <RentCar />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/my-cars"
+        element={
+          <ProtectedRoute allowedRoles={['user']}>
+            <DashboardLayout>
+              <MyCars />
             </DashboardLayout>
           </ProtectedRoute>
         }
