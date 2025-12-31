@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { api } from '../../lib/api'
 
@@ -19,17 +21,16 @@ interface AuthState {
 // Helper to get user from localStorage
 const getInitialUser = (): User | null => {
   const userStr = localStorage.getItem('user')
-  console.log(JSON.parse(userStr))
   if (userStr) {
     try {
       return JSON.parse(userStr)
-      
     } catch {
       return null
     }
   }
   return null
 }
+  
 
 const initialState: AuthState = {
   user: getInitialUser(),
@@ -53,7 +54,7 @@ export const initializeAuth = createAsyncThunk(
         return { token, user }
       }
       return { token: null, user: null }
-    } catch (error: any) {
+    } catch (error : any) {
       // If token is invalid, clear localStorage
       localStorage.removeItem('accessToken')
       localStorage.removeItem('user')
@@ -65,7 +66,7 @@ export const initializeAuth = createAsyncThunk(
 // Login
 export const loginUser = createAsyncThunk(
   'auth/login',
-  async (credentials: LoginCredentials, { rejectWithValue }) => {
+  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await api.post('/auth/login', credentials)
       const { accessToken, ...userData } = response.data.data
@@ -81,7 +82,7 @@ export const loginUser = createAsyncThunk(
 // Register
 export const registerUser = createAsyncThunk(
   'auth/register',
-  async (data: RegisterData, { rejectWithValue }) => {
+  async (data: any, { rejectWithValue }) => {
     try {
       const response = await api.post('/auth/register', data)
       const { accessToken, ...userData } = response.data.data

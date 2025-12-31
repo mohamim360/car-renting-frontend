@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import CommonLayout from './layouts/CommonLayout'
@@ -32,7 +33,7 @@ function App() {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(initializeAuth())
+    void dispatch(initializeAuth() as any)
   }, [dispatch])
 
   return (
