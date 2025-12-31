@@ -228,7 +228,7 @@ export default function CarDetails() {
                     <p className="text-sm text-gray-500 mb-1">Daily Rate</p>
                     <div className="flex items-baseline">
                       <span className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
-                        ${currentCar.price || '89'}
+                       89
                       </span>
                       <span className="text-gray-500 ml-2">/ day</span>
                     </div>
