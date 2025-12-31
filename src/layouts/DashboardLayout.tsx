@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import { LayoutDashboard, KeyRound, Car as CarIcon, Menu, Home, Users, Settings, BarChart3, UserCog } from 'lucide-react'
+import {  KeyRound, Car as CarIcon, Menu, Home, Users, BarChart3, ClipboardList, Briefcase, Hammer } from 'lucide-react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
-import type { RootState } from '../store'
+import type { RootState } from '@/store/store'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -15,14 +15,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const getSidebarLinks = () => {
     if (!user) return []
 
-    const commonLinks = [
-      {
-        to: "/dashboard",
-        icon: <LayoutDashboard className="h-5 w-5 text-purple-500" />,
-        label: "Dashboard Overview",
-        roles: ['user', 'admin', 'driver']
-      }
-    ]
+   
 
     const userLinks = [
       {
@@ -35,6 +28,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         to: "/dashboard/my-cars",
         icon: <CarIcon className="h-5 w-5 text-purple-500" />,
         label: "My Rentals",
+        roles: ['user']
+      },
+      {
+        to: "/dashboard/my-bids",
+        icon: <Hammer className="h-5 w-5 text-purple-500"/>,
+        label: "My Bids",
         roles: ['user']
       }
     ]
@@ -73,17 +72,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         label: "Driver Dashboard",
         roles: ['driver']
       },
-      {
-        to: "/dashboard/driver/my-assignments",
-        icon: <KeyRound className="h-5 w-5 text-purple-500" />,
-        label: "My Assignments",
-        roles: ['driver']
-      }
+      { to: '/dashboard/driver/my-bids', icon: <ClipboardList className="h-5 w-5 text-purple-500" />, label: 'My Bids', roles: ['driver'] },
+      { to: '/dashboard/driver/available-jobs', icon: <Briefcase className="h-5 w-5 text-purple-500" />, label: 'Available Jobs', roles: ['driver'] },
+
     ]
 
     // Combine all links that match user's role
     return [
-      ...commonLinks,
       ...userLinks,
       ...adminLinks,
       ...driverLinks
@@ -106,19 +101,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Menu className="h-5 w-5" />
               </button>
               <div className="flex flex-col">
-                <Link 
-                  to="/dashboard" 
+                <Link
+                  to="/dashboard"
                   className="text-xl font-bold text-purple-600"
                 >
                   Dashboard
                 </Link>
-             
+
               </div>
             </div>
             <div className="flex items-center gap-4">
-             
-              <Link 
-                to="/" 
+
+              <Link
+                to="/"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-purple-50 hover:text-purple-700 transition-colors"
               >
                 <Home className="h-4 w-4 text-purple-500" />
@@ -167,14 +162,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </Link>
             ))}
           </nav>
-          
+
           {/* Sidebar decorative element */}
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-purple-200"></div>
         </aside>
 
         {/* Overlay for mobile */}
         {sidebarOpen && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/20 lg:hidden z-30"
             onClick={() => setSidebarOpen(false)}
           />

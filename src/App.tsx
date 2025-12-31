@@ -24,6 +24,9 @@ import UsersManagement from './pages/dashboard/UsersManagement'
 import DriverDashboard from './pages/dashboard/DriverDashboard'
 import MyCars from './pages/dashboard/MyCars'
 import AdminRentManagement from './pages/dashboard/AdminRentmanagement'
+import UserMyBids from './pages/dashboard/UserMyBids'
+import DriverMyBids from './pages/dashboard/DriverMyBids'
+import DriverAvailableJobs from './pages/dashboard/DriverAvailableJobs'
 
 function App() {
   const dispatch = useDispatch()
@@ -113,6 +116,16 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/dashboard/my-bids"
+        element={
+          <ProtectedRoute allowedRoles={['user']}>
+            <DashboardLayout>
+              <UserMyBids />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
 
       {/* Admin Dashboard Routes */}
       <Route
@@ -126,16 +139,16 @@ function App() {
         }
       />
       <Route
-  path="/dashboard/admin/rents-management"
-  element={
-    <ProtectedRoute allowedRoles={['admin']}>
-      <DashboardLayout>
-        {/* Create this component */}
-        <AdminRentManagement />
-      </DashboardLayout>
-    </ProtectedRoute>
-  }
-/>
+        path="/dashboard/admin/rents-management"
+        element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <DashboardLayout>
+              {/* Create this component */}
+              <AdminRentManagement />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/dashboard/admin/cars-management"
         element={
@@ -164,6 +177,26 @@ function App() {
           <ProtectedRoute allowedRoles={['driver']}>
             <DashboardLayout>
               <DriverDashboard />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/driver/my-bids"
+        element={
+          <ProtectedRoute allowedRoles={['driver']}>
+            <DashboardLayout>
+              <DriverMyBids />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/driver/available-jobs"
+        element={
+          <ProtectedRoute allowedRoles={['driver']}>
+            <DashboardLayout>
+              <DriverAvailableJobs />
             </DashboardLayout>
           </ProtectedRoute>
         }
