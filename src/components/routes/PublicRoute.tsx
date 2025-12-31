@@ -1,9 +1,8 @@
-import { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAppSelector } from '../../store/hooks'
 
 interface PublicRouteProps {
-  children: ReactNode
+  children: React.ReactNode
   restricted?: boolean
 }
 
