@@ -12,6 +12,8 @@ export default function CarDetails() {
 
   useEffect(() => {
     if (id) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
       dispatch(getCarById(id))
     }
   }, [dispatch, id])

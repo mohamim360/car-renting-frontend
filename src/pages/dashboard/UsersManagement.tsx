@@ -43,6 +43,9 @@ export default function UsersManagement() {
       setIsEditing(true)
       setSelectedUser(user)
       setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        password: '',
         role: user.role,
         img: user.img || '',
         rating: user.rating || 0,
@@ -289,10 +292,10 @@ export default function UsersManagement() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user?.rating > 0 ? `★ ${user.rating}` : '-'}
+                      {typeof user.rating === 'number' && user.rating > 0 ? `★ ${user.rating}` : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {user?.rents?.length || 0}
+                      {(user as any)?.rents && Array.isArray((user as any).rents) ? (user as any).rents.length : 0}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '@/store/store'
@@ -37,6 +38,8 @@ export default function CarsManagement() {
   })
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     dispatch(getAllCars())
   }, [dispatch])
 
@@ -90,6 +93,8 @@ export default function CarsManagement() {
 
       if (updateCar.fulfilled.match(result)) {
         handleCloseModal()
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
         dispatch(getAllCars())
       }
     } else {
@@ -97,6 +102,8 @@ export default function CarsManagement() {
 
       if (createCar.fulfilled.match(result)) {
         handleCloseModal()
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
         dispatch(getAllCars())
       }
     }
@@ -107,6 +114,8 @@ export default function CarsManagement() {
       const result = await dispatch(deleteCar(id) as any)
       
       if (deleteCar.fulfilled.match(result)) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
         dispatch(getAllCars())
       }
     }

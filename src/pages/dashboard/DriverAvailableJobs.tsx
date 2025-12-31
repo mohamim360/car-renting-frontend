@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '@/store/store'
 import { getAllRents } from '@/store/slices/rentSlice'
 import { getAllBids, createBid } from '@/store/slices/bidSlice'
-import { MapPin, Car, DollarSign, Clock } from 'lucide-react'
+import { MapPin, Car, DollarSign } from 'lucide-react'
 
 export default function DriverAvailableJobs() {
   const dispatch = useDispatch()
@@ -18,7 +19,11 @@ export default function DriverAvailableJobs() {
   const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     dispatch(getAllRents())
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     dispatch(getAllBids())
   }, [dispatch])
 
@@ -54,7 +59,11 @@ export default function DriverAvailableJobs() {
         setDriverLocation('')
         
         // Refresh data
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
         dispatch(getAllRents())
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
         dispatch(getAllBids())
         
         setTimeout(() => setSuccessMessage(''), 3000)

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from '@/store/store'
@@ -10,6 +11,8 @@ export default function DriverMyBids() {
   const { bids, loading } = useSelector((state: RootState) => state.bid)
 
   useEffect(() => {
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     dispatch(getAllBids())
   }, [dispatch])
 

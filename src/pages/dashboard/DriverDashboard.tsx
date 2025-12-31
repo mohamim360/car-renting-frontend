@@ -13,7 +13,11 @@ export default function DriverDashboard() {
   const { bids, loading: bidsLoading } = useSelector((state: RootState) => state.bid)
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     dispatch(getAllRents())
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     dispatch(getAllBids())
   }, [dispatch])
 

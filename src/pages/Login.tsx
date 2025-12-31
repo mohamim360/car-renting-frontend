@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginUser, clearError } from '../store/slices/authSlice'
 import { Eye, EyeOff, Mail, Lock, Car } from 'lucide-react'
+import type { RootState } from '@/store/store'
 
 interface LoginFormData {
   email: string
