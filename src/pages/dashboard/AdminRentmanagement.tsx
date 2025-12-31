@@ -1,12 +1,13 @@
+// pages/dashboard/AdminRentManagement.tsx
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Car, MapPin, Clock, CheckCircle, XCircle, AlertCircle, Trash2, Edit, X } from 'lucide-react'
+import { Car, MapPin, Clock, CheckCircle, XCircle, AlertCircle, Trash2, Edit, X, Users } from 'lucide-react'
 import type { RootState } from '@/store/store'
-import { updateRent, deleteRent, getRentById } from '@/store/slices/rentSlice'
+import { getAllRents, updateRent, deleteRent } from '@/store/slices/rentSlice'
 
-function MyCars() {
+function AdminRentManagement() {
   const dispatch = useDispatch()
-  const { currentRent, loading, error } = useSelector((state: RootState) => state.rent)
+  const { rents, loading, error } = useSelector((state: RootState) => state.rent)
   const { user } = useSelector((state: RootState) => state.auth)
 
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -18,8 +19,8 @@ function MyCars() {
   })
 
   useEffect(() => {
-    if (user?._id) {
-      dispatch(getRentById(user._id))
+    if (user?.role === 'admin') {
+      dispatch(getAllRents())
     }
   }, [dispatch, user])
 
@@ -48,10 +49,7 @@ function MyCars() {
           destination: editForm.destination
         } 
       }))
-      // Refresh user's rentals after update
-      if (user?._id) {
-        dispatch(getRentById(user._id))
-      }
+      dispatch(getAllRents())
       setEditingRent(null)
     } catch (error) {
       console.error('Failed to update rent:', error)
@@ -68,10 +66,7 @@ function MyCars() {
     setUpdatingId(rentId)
     try {
       await dispatch(updateRent({ id: rentId, data: { rentStatus: newStatus } }))
-      // Refresh user's rentals after update
-      if (user?._id) {
-        dispatch(getRentById(user._id))
-      }
+      dispatch(getAllRents())
     } catch (error) {
       console.error('Failed to update rent:', error)
     } finally {
@@ -80,17 +75,14 @@ function MyCars() {
   }
 
   const handleDelete = async (rentId: string) => {
-    if (!window.confirm('Are you sure you want to delete this rental? This action cannot be undone.')) {
+    if (!window.confirm('Are you sure you want to delete this rental?')) {
       return
     }
     
     setDeletingId(rentId)
     try {
       await dispatch(deleteRent(rentId))
-      // Refresh user's rentals after delete
-      if (user?._id) {
-        dispatch(getRentById(user._id))
-      }
+      dispatch(getAllRents())
     } catch (error) {
       console.error('Failed to delete rent:', error)
     } finally {
@@ -124,10 +116,6 @@ function MyCars() {
     }
   }
 
-  // Get user's rentals from currentRent (assuming backend returns array for user)
-  const userRents = Array.isArray(currentRent) ? currentRent : 
-                   (currentRent ? [currentRent] : [])
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
@@ -145,6 +133,15 @@ function MyCars() {
       </div>
     )
   }
+
+  // Calculate stats
+  const totalRentals = rents.length
+  const pendingRentals = rents.filter(r => r.rentStatus === 'pending').length
+  const ongoingRentals = rents.filter(r => r.rentStatus === 'ongoing').length
+  const completedRentals = rents.filter(r => r.rentStatus === 'completed').length
+  const uniqueUsers = [...new Set(rents.map(rent => 
+    typeof rent.user === 'object' ? rent.user._id : rent.user
+  ))].length
 
   return (
     <>
@@ -167,6 +164,12 @@ function MyCars() {
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-700 mb-4">Rental Information</h3>
                   <div className="space-y-3">
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-500">User:</span>
+                      <span className="ml-2 text-gray-800">
+                        {typeof editingRent.user === 'object' ? editingRent.user?.email : 'User'}
+                      </span>
+                    </div>
                     <div className="text-sm">
                       <span className="font-medium text-gray-500">Car:</span>
                       <span className="ml-2 text-gray-800">
@@ -245,15 +248,66 @@ function MyCars() {
       {/* Main Content */}
       <div className="p-6">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">My Rentals</h1>
-          <p className="text-gray-600">View all your car rental history and current rentals</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">All Rentals Management</h1>
+          <p className="text-gray-600">Admin panel to manage all user rentals</p>
         </div>
 
-        {userRents.length === 0 ? (
+        {/* Stats Cards - Like MyCars */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-lg border border-purple-100 shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                <Car className="h-6 w-6 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Total Rentals</p>
+                <p className="text-2xl font-bold text-gray-800">{totalRentals}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-purple-100 shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                <AlertCircle className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Pending Rentals</p>
+                <p className="text-2xl font-bold text-gray-800">{pendingRentals}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-purple-100 shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <Clock className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Active Rentals</p>
+                <p className="text-2xl font-bold text-gray-800">{ongoingRentals}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-purple-100 shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Completed Rentals</p>
+                <p className="text-2xl font-bold text-gray-800">{completedRentals}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {rents.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <Car className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-800 mb-2">No rentals found</h3>
-            <p className="text-gray-600">You haven't rented any cars yet.</p>
+            <p className="text-gray-600">No rentals have been created yet.</p>
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -261,6 +315,9 @@ function MyCars() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      User
+                    </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Car Details
                     </th>
@@ -276,8 +333,13 @@ function MyCars() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {userRents.map((rent) => (
+                  {rents.map((rent) => (
                     <tr key={rent._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {typeof rent.user === 'object' ? rent.user?.email : 'User'}
+                        </div>
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
@@ -293,30 +355,19 @@ function MyCars() {
                                 'Car Details Loading...'
                               )}
                             </div>
-                            {typeof rent.car === 'object' && (
-                              <div className="text-sm text-gray-500">
-                                {rent.car.color} • {rent.car.fuelType}
-                              </div>
-                            )}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-4">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="h-4 w-4 text-purple-500 mr-2" />
-                            <div>
-                              <div className="font-medium">From</div>
-                              <div>{rent.startingPoint}</div>
-                            </div>
+                          <div className="text-sm text-gray-600">
+                            <div className="font-medium">From:</div>
+                            <div>{rent.startingPoint}</div>
                           </div>
                           <div className="text-gray-400">→</div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="h-4 w-4 text-green-500 mr-2" />
-                            <div>
-                              <div className="font-medium">To</div>
-                              <div>{rent.destination}</div>
-                            </div>
+                          <div className="text-sm text-gray-600">
+                            <div className="font-medium">To:</div>
+                            <div>{rent.destination}</div>
                           </div>
                         </div>
                       </td>
@@ -329,7 +380,7 @@ function MyCars() {
                             {rent.rentStatus.charAt(0).toUpperCase() + rent.rentStatus.slice(1)}
                           </span>
                           
-                          {/* Status Update Dropdown for User */}
+                          {/* Status Update Dropdown for Admin */}
                           <select
                             onChange={(e) => handleStatusUpdate(rent._id, e.target.value as any)}
                             disabled={updatingId === rent._id}
@@ -367,29 +418,31 @@ function MyCars() {
               </table>
             </div>
 
-            {/* Summary */}
+            {/* Summary Section - Like MyCars */}
             <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  Total Rentals: <span className="font-semibold">{userRents.length}</span>
+                  Total Rentals: <span className="font-semibold">{totalRentals}</span>
+                  <span className="mx-4">•</span>
+                  Unique Users: <span className="font-semibold">{uniqueUsers}</span>
                 </div>
                 <div className="flex space-x-4">
                   <div className="text-sm">
                     <span className="inline-flex items-center">
                       <span className="h-3 w-3 bg-yellow-500 rounded-full mr-2"></span>
-                      Pending: {userRents.filter(r => r.rentStatus === 'pending').length}
+                      Pending: {pendingRentals}
                     </span>
                   </div>
                   <div className="text-sm">
                     <span className="inline-flex items-center">
                       <span className="h-3 w-3 bg-blue-500 rounded-full mr-2"></span>
-                      Ongoing: {userRents.filter(r => r.rentStatus === 'ongoing').length}
+                      Ongoing: {ongoingRentals}
                     </span>
                   </div>
                   <div className="text-sm">
                     <span className="inline-flex items-center">
                       <span className="h-3 w-3 bg-green-500 rounded-full mr-2"></span>
-                      Completed: {userRents.filter(r => r.rentStatus === 'completed').length}
+                      Completed: {completedRentals}
                     </span>
                   </div>
                 </div>
@@ -398,46 +451,30 @@ function MyCars() {
           </div>
         )}
 
-        {/* Stats Cards */}
-        {userRents.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+        {/* Additional Stats Card - Only show if there are rentals */}
+        {rents.length > 0 && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg border border-purple-100 shadow-sm p-6">
               <div className="flex items-center">
                 <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
-                  <Clock className="h-6 w-6 text-purple-600" />
+                  <Users className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Active Rentals</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {userRents.filter(r => r.rentStatus === 'ongoing').length}
-                  </p>
+                  <p className="text-sm text-gray-500">Total Users</p>
+                  <p className="text-2xl font-bold text-gray-800">{uniqueUsers}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-lg border border-purple-100 shadow-sm p-6">
               <div className="flex items-center">
-                <div className="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
-                  <AlertCircle className="h-6 w-6 text-yellow-600" />
+                <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mr-4">
+                  <Car className="h-6 w-6 text-indigo-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Pending Rentals</p>
+                  <p className="text-sm text-gray-500">Active Ratio</p>
                   <p className="text-2xl font-bold text-gray-800">
-                    {userRents.filter(r => r.rentStatus === 'pending').length}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <div className="flex items-center">
-                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Completed Rentals</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {userRents.filter(r => r.rentStatus === 'completed').length}
+                    {totalRentals > 0 ? Math.round((ongoingRentals / totalRentals) * 100) : 0}%
                   </p>
                 </div>
               </div>
@@ -449,4 +486,4 @@ function MyCars() {
   )
 }
 
-export default MyCars
+export default AdminRentManagement

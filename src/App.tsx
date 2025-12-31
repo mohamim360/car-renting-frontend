@@ -23,6 +23,7 @@ import CarsManagement from './pages/dashboard/CarsManagement'
 import UsersManagement from './pages/dashboard/UsersManagement'
 import DriverDashboard from './pages/dashboard/DriverDashboard'
 import MyCars from './pages/dashboard/MyCars'
+import AdminRentManagement from './pages/dashboard/AdminRentmanagement'
 
 function App() {
   const dispatch = useDispatch()
@@ -124,6 +125,17 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/dashboard/admin/rents-management"
+  element={
+    <ProtectedRoute allowedRoles={['admin']}>
+      <DashboardLayout>
+        {/* Create this component */}
+        <AdminRentManagement />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
       <Route
         path="/dashboard/admin/cars-management"
         element={

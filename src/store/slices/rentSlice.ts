@@ -63,7 +63,7 @@ export const getAllRents = createAsyncThunk(
       }
 
       // Get rents for current user
-      const response = await api.get(`/rents/user/${userId}`)
+      const response = await api.get(`/rents`)
       return response.data.data
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch rents')
